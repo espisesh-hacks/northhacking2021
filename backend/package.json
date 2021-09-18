@@ -1,10 +1,19 @@
 {
-  "name": "backend",
+  "name": "northhacking-backend",
   "version": "1.0.0",
+  "description": "",
   "main": "index.js",
-  "license": "MIT",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "GPL-3.0",
   "dependencies": {
-    "sequelize": "^6.6.5",
-    "sequelize-cockroachdb": "^6.0.1"
+    "pg": "^8.7.1",
+    "ws": "^8.2.2"
+  },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.3",
+    "utf-8-validate": "^5.0.5"
   }
 }

@@ -1,4 +1,10 @@
 body {
-
+    overflow: hidden;
 }
 ::-webkit-scrollbar { width: 0; display: none; }
+.app-card {
+    transition: 0.3s;
+}
+.app-card:hover {
+    background-color: lightgrey;
+}

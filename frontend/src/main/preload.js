@@ -1,9 +1,14 @@
 const { contextBridge, ipcRenderer } = require('electron');
+const {execSync} = require("child_process");
 
 contextBridge.exposeInMainWorld('electron', {
+  myPing() {
+
+    return execSync("docker ps --format='{{json .}}' | jq --slurp").toString();
+  },
   ipcRenderer: {
     myPing() {
-      ipcRenderer.send('ipc-example', 'ping');
+
     },
     on(channel, func) {
       const validChannels = ['ipc-example'];
