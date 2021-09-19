@@ -21,7 +21,7 @@ async function bindChangeFeeds() {
         'sql',
         '--url=postgresql://root@192.168.1.128:26257?sslmode=disable',
         '--format=csv',
-        '--execute="EXPERIMENTAL CHANGEFEED FOR state_changes;"'
+        '--execute=EXPERIMENTAL CHANGEFEED FOR state_changes;'
     ]);
 
     cf.stdout.on('data', (data) => {
