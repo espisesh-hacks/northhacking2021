@@ -1,9 +1,9 @@
-console.log("Starting WS Gateway server...");
+console.log("Starting Paracrates WS Gateway server...");
 const { WebSocketServer } = require('ws');
 const { Pool, Client } = require('pg');
 const crypto = require('crypto');
 
-const {updateLatestAction} = require("./sync_servers");
+const {updateLatestAction, bindChangeFeeds} = require("./sync_servers");
 
 const wss = new WebSocketServer({ port: 8080 });
 
@@ -126,8 +126,10 @@ async function main() {
         //ws.send('something');
     });
 }
-main().then(() => {
+main().then(async () => {
     console.log("Listening on port 8080");
+    console.log("Subscribing to CockroachDB Changefeeds...");
+    await bindChangeFeeds();
 });
 
 
