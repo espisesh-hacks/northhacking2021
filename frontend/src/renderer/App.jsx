@@ -28,6 +28,7 @@ class MainScreen extends React.Component {
       receiveAppName: "",
 
       deployModal: false,
+      deployStdout: ""
     }
   }
   componentDidMount() {
@@ -100,8 +101,10 @@ class MainScreen extends React.Component {
 
   deployApplication() {
     this.setState({deployModal: true, receiveModal: false});
-
-    /// TODO CLI
+    window.electron.runScript((data) => { 
+      console.log(data.toString());
+      this.setState({ deployStdout: this.state.deployStdout + data.toString() }); 
+    });
   }
 
   render() {
