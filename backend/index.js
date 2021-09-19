@@ -53,7 +53,7 @@ async function main() {
 
                 // todo make sure hello was sent first
                 case "get-users": {
-                    if(user === undefined) { ws.send(JSON.stringify({action: "error", payload: {message: "Not Authenticated"}})); return; }
+                    //if(user === undefined) { ws.send(JSON.stringify({action: "error", payload: {message: "Not Authenticated"}})); return; }
                     const res = await pool.query("SELECT username, displayname FROM users");
                     console.log(res);
                     ws.send(JSON.stringify({
