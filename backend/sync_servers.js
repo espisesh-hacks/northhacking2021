@@ -19,7 +19,7 @@ async function bindChangeFeeds() {
     const { spawn } = require('child_process');
     const cf = spawn('docker', ['run', '--rm', 'christoofar/cockroachdb-arm64',
         'sql',
-        '--url="postgresql://root@192.168.1.128:26257?sslmode=disable"',
+        '--url=postgresql://root@192.168.1.128:26257?sslmode=disable',
         '--format=csv',
         '--execute="EXPERIMENTAL CHANGEFEED FOR state_changes;"'
     ]);
