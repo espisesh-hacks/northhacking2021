@@ -10,6 +10,7 @@
   "license": "GPL-3.0",
   "dependencies": {
     "pg": "^8.7.1",
+    "pg-query-stream": "^4.2.1",
     "ws": "^8.2.2"
   },
   "optionalDependencies": {
