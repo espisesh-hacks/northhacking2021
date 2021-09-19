@@ -17,9 +17,17 @@ async function main() {
         password: '',
         port: 26257
     });
-    let res = await pool.query('SELECT NOW()');
-    console.log(res.rows);
-
+    console.log("Testing CockroachDB Connection: ");
+    try {
+        const res = await pool.query('SELECT NOW()');
+        console.log(res.rows);
+        console.log("Success!");
+    } catch(e) {
+        console.log(e);
+        console.log("Failed to query CockroachDB.");
+        process.exit(-1);
+    }
+    
     wss.on('connection', function connection(ws) {
         let user;
         ws.on('message', async function incoming(message) {
