@@ -3,6 +3,8 @@ const { WebSocketServer } = require('ws');
 const { Pool, Client } = require('pg');
 const crypto = require('crypto');
 
+const {updateLatestAction} = require("./sync_servers");
+
 const wss = new WebSocketServer({ port: 8080 });
 
 let clients = [];
@@ -113,6 +115,8 @@ async function main() {
                         }
                     }));
             }
+            // Notify other servers of state change.
+            await updateLatestAction(msg, user, pool);
         });
         ws.on('close', function close() {
             console.log('Client Disconnected');
