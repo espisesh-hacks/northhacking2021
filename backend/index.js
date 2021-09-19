@@ -5,6 +5,8 @@ const crypto = require('crypto');
 
 const wss = new WebSocketServer({ port: 8080 });
 
+let clients = [];
+
 async function main() {
     const pool = new Pool({
         user: 'root',
@@ -21,7 +23,7 @@ async function main() {
             console.log('received: %s', message);
             let msg = JSON.parse(message);
             switch(msg.action) {
-                case "hello":
+                case "hello": {
                     // todo BAD BAD BAD DONT USE MD5 SWITCH TO ARGON2 OR SOMETHING
                     let hash = crypto.createHash('sha256').update(msg.payload.password).digest('hex');
                     let res = await pool.query("SELECT * FROM users WHERE username = $1", [msg.payload.username]);
@@ -42,7 +44,22 @@ async function main() {
                             }
                         }));
                     }
-                    break;
+                } break;
+                case "get-users": {
+                    const res = await pool.query("SELECT username, displayname FROM users");
+                    console.log(res);
+                    ws.send(JSON.stringify({
+                        action: "user-list",
+                        payload: res.rows
+                    }));
+                } break;
+                case "request-container-push": {
+                    // payload targetUsername, containerID
+
+                } break;
+                default:
+                    console.log("Unknown Action message:");
+                    console.log(msg);
             }
         });
 
