@@ -1,11 +1,9 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { MemoryRouter as Router, Switch, Route } from 'react-router-dom';
-import { Button, Navbar, Container, Row, Col, Modal, Form, Card, Spinner, ListGroup, Nav } from 'react-bootstrap';
+import { Button, Navbar, Container, Row, Col, Modal, Form, Card, Spinner, ListGroup, Nav, Dropdown, DropdownButton } from 'react-bootstrap';
 import './App.global.css';
 import ayaya from "./ayaya.png"
-
-import { Dropdown } from '@fluentui/react';
 
 class MainScreen extends React.Component {
   constructor(props) {
@@ -22,22 +20,29 @@ class MainScreen extends React.Component {
       containerID: "placeholder",
       userID: "someone",
       users: [],
-      usersJSX: ""
+      usersDropdownJSX: [],
+      usersJSX: "",
+
+      receiveModal: false,
+      receiveRequestingUser: {username: "", displayname: ""},
+      receiveAppName: "",
+
+      deployModal: false,
     }
   }
   componentDidMount() {
     this.getProcesses();
-    
+
     console.log("Establishing Gateway Connection...");
-    
+
     let socket = new WebSocket("ws://192.168.1.128:8080");
     socket.onopen = (event) => {
       console.log("Connected!");
       this.setState({connected: true, socket});
-      
+
       this.state.socket.send(JSON.stringify({action: "get-users"}));
     };
-    
+
     socket.onmessage = (event) => {
       console.log(event.data);
       let msg = JSON.parse(event.data)
@@ -50,13 +55,18 @@ class MainScreen extends React.Component {
             alert("Login Failed!");
           }
           break;
-        case "get-users":
+        case "user-list":
+            let usersDropdownJSX = [], users = [];  
             for (let p of msg.payload) {
                 console.log("user: " + p);
                 users.push(p);
-                usersJSX.push();
+                usersDropdownJSX.push(<Dropdown.Item href="#">{p.displayname}</Dropdown.Item>);
             }
+            this.setState({usersDropdownJSX, users});
             break;
+          case "push-container":
+            this.setState({ receiveModal: true, receiveRequestingUser: msg.payload.requestUser, receiveAppName: msg.payload.appName});
+          break;
        }
     };
   }
@@ -70,21 +80,37 @@ class MainScreen extends React.Component {
       }
     }));
   }
-  
+
   getProcesses() {
     // [{"Command":"\"docker-entrypoint.s…\"","CreatedAt":"2021-07-06 19:16:31 -0400 EDT","ID":"0062c3ab5c99","Image":"redis","Labels":"","LocalVolumes":"1","Mounts":"a5a0681425a12d…","Names":"redis","Networks":"bridge","Ports":"0.0.0.0:6379->6379/tcp, :::6379->6379/tcp","RunningFor":"2 months ago","Size":"0B (virtual 105MB)","State":"running","Status":"Up 2 hours"}]
     this.setState({processes: JSON.parse(window.electron.myPing())});
   }
-  
-  
-  
+
+  sendDeployToRemote() {
+    this.setState({migrateModal: false});
+    this.state.socket.send(JSON.stringify({
+      action: "request-push-container",
+      payload: {
+        targetUsername: "koitu",
+        containerID: "1234",
+        appName: "Minecraft Server"
+      }
+    }));
+  }
+
+  deployApplication() {
+    this.setState({deployModal: true, receiveModal: false});
+
+    /// TODO CLI
+  }
+
   render() {
     if (this.state.processes === "") {
       return(
         <div>Loading...</div>
       )
     }
-    
+
     // cards (pJSX)
     let pJSX = [];
     let i = 0;
@@ -100,11 +126,11 @@ class MainScreen extends React.Component {
         <br />
       </div>)
     }
-    
+
     return (
-        
+
       <div style={{height: "100%"}}>
-        
+
         {/* login modal */}
         <Modal show={this.state.loginModal} onHide={() => {}} centered>
           <Modal.Header>
@@ -141,33 +167,77 @@ class MainScreen extends React.Component {
           </Spinner><br /><br /></center> }
 
         </Modal>
-        
+
         {/* migrate modal */}
-        
+
         <Modal show={this.state.migrateModal} onHide={() => {this.state.migrateModal = false}} centered>
-        
+
             <Modal.Header>
                 <Modal.Title>Clone to user</Modal.Title>
             </Modal.Header>
-            
+
             <Modal.Body>
                 <Form>
                     <Form.Group className="mb-3">
                     <Form.Label>Which user do you want to push the application to?</Form.Label>
-                    
-                    <Dropdown
-                        placeholder="Select a user"
-                        label="Please SELECT THE USER!!!"
-                        options={ [{key: "a", text: "a"}, {key: "b", text: "b"}]this.state.users.map(user => { return { key: user.username, text: user.displayname } }) } } 
-                        styles={{ dropdown: { width: 300 } }}
-                    />
-                    </Form.Group>
-                    
+
+                    <DropdownButton id="dropdown-basic-button" title="Select User">
+                      {this.state.usersDropdownJSX}
+                    </DropdownButton>
+                  </Form.Group>
+
+                  <Modal.Footer>
+                    <Button variant="secondary">Cancel</Button>
+                    <Button variant="primary" onClick={() => {this.sendDeployToRemote()}}>Send Request</Button>
+                  </Modal.Footer>
+
                 </Form>
             </Modal.Body>
-        
+
         </Modal>
-        
+
+        {/* receive modal */}
+
+        <Modal show={this.state.receiveModal} onHide={() => {this.state.receiveModal = false}} centered>
+
+            <Modal.Header>
+                <Modal.Title>Application receive request</Modal.Title>
+            </Modal.Header>
+
+            <Modal.Body>
+                <Form>
+                    <Form.Group className="mb-3">
+                    <Form.Label className="text-muted"><b>{this.state.receiveRequestingUser.displayname}</b> is requesting to send you <b>{this.state.receiveAppName}</b>.</Form.Label>
+                    <Form.Label className="text-muted">Would you like to deploy this application to your system?</Form.Label>
+                  </Form.Group>
+
+                  <Modal.Footer>
+                    <Button variant="secondary">No</Button>
+                    <Button variant="primary" onClick={() => {this.deployApplication()}}>Yes</Button>
+                  </Modal.Footer>
+
+                </Form>
+            </Modal.Body>
+
+        </Modal>
+
+        {/* deploy modal */}
+
+        <Modal show={this.state.deployModal} onHide={() => {this.state.deployModal = false}} centered>
+
+            <Modal.Header>
+                <Modal.Title>Application deployment</Modal.Title>
+            </Modal.Header>
+
+            <Modal.Body>
+              <p className="text-muted">Deploying <b>{this.state.receiveAppName}</b> from <b>{this.state.receiveRequestingUser.displayname}</b> to the system...</p>
+
+              
+
+            </Modal.Body>
+
+        </Modal>
+
         {/* navbar */}
         <Navbar bg="dark" variant="dark">
           <Container>
@@ -185,14 +255,14 @@ class MainScreen extends React.Component {
             </Navbar.Brand>
           </Container>
         </Navbar>
-        
+
         <Row style={{height: "90vh"}}>
-        
+
           {/* sidebar */}
           <Col xs={3} style={{backgroundColor: "#03a9f4", fontWeight: 700, color: "white", padding: "25px"}}>
             <p>Processes</p>
           </Col>
-          
+
           {/* content */}
           <Col style={{padding: "25px", maxWidth: "60%", height: "100vh"}}>
             <h3>App Environments</h3>
@@ -202,7 +272,7 @@ class MainScreen extends React.Component {
             </pre>
           </Col>
         </Row>
-        
+
         {this.state.connected ? <div style={{position: "absolute", bottom: "10px", left: "10px", color: "green"}}>
           <p>Connected to Gateway</p>
         </div> : <div style={{position: "absolute", bottom: "10px", left: "10px", color: "red"}}>
