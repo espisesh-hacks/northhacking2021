@@ -6,12 +6,13 @@ contextBridge.exposeInMainWorld('electron', {
 
     return execSync("docker ps --format='{{json .}}' | jq --slurp").toString();
   },
-  runScript(handler) {
-      const process = spawn('ls', ['-lh']);
+  runScript(handler, errorHandler) {
+      const process = spawn('sudo', ['bash', '/home/koitu/docker-migrate.sh']);
       process.stdout.on('data', (data) => handler(data.toString()));
       process.stderr.on('data', (data) => handler(data.toString()));
       process.on('close', (code) => {
-        handler("child process exited with code ${code}")
+        handler("child process exited with code " + code);
+        errorHandler();
       });
       return process;
   },

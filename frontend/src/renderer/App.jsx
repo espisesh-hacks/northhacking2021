@@ -105,7 +105,7 @@ class MainScreen extends React.Component {
   deployApplication() {
     this.setState({deployModal: true, receiveModal: false});
     window.electron.runScript((data) => { 
-      console.log(data.toString());
+      console.log(this.state.deployStdout);
       this.setState({ deployStdout: this.state.deployStdout + data.toString() }); 
       this.xtermRef.current.terminal.writeln(data.toString()); // TODOTODOTODO
     });
@@ -240,7 +240,10 @@ class MainScreen extends React.Component {
             <Modal.Body>
               <p className="text-muted">Deploying <b>{this.state.receiveAppName}</b> from <b>{this.state.receiveRequestingUser.displayname}</b> to the system...</p>
 
-              <XTerm ref={this.xtermRef}/>
+              <textarea rows="15" cols="50" value={this.state.deployStdout} style={{display: "flex", flexDirection: "column-reverse"}}> 
+              </textarea>
+
+              {/* <XTerm ref={this.xtermRef}/> */}
 
             </Modal.Body>
 
