@@ -19,6 +19,7 @@ async function main() {
     console.log(res.rows);
 
     wss.on('connection', function connection(ws) {
+        let user;
         ws.on('message', async function incoming(message) {
             console.log('received: %s', message);
             let msg = JSON.parse(message);
@@ -36,6 +37,10 @@ async function main() {
                                 login: true
                             }
                         }));
+                        // store this connection
+                        clients[msg.payload.username] = ws;
+                        console.log("storing user:")
+                        user = res.rows[0];
                     } else {
                         ws.send(JSON.stringify({
                             action: "auth-status",
@@ -45,7 +50,10 @@ async function main() {
                         }));
                     }
                 } break;
+
+                // todo make sure hello was sent first
                 case "get-users": {
+                    if(user === undefined) { ws.send(JSON.stringify({action: "error", payload: {message: "Not Authenticated"}})); return; }
                     const res = await pool.query("SELECT username, displayname FROM users");
                     console.log(res);
                     ws.send(JSON.stringify({
@@ -53,13 +61,43 @@ async function main() {
                         payload: res.rows
                     }));
                 } break;
-                case "request-container-push": {
+                case "request-push-container": {
+                    if(user === undefined) { ws.send(JSON.stringify({action: "error", payload: {message: "Not Authenticated"}})); return; }
                     // payload targetUsername, containerID
+                    // check if client is not null;
+                    if(clients[msg.payload.targetUsername] === undefined) {
+                        console.log("Attempted to push to a user who is not online");
+                        ws.send(JSON.stringify({
+                            action: "error",
+                            payload: {
+                                message: "Attempted to push to a user who is not online."
+                            }
+                        }));
+                        return;
+                    } else {
+                        clients[msg.payload.targetUsername].send(JSON.stringify({
+                            action: "push-container",
+                            payload: {
+                                requestUser: {
+                                    username: user.username,
+                                    displayname: user.displayname
+                                }
+                            }
+                        }));
+                    }
+
+                    //send back container-push-status
 
                 } break;
                 default:
-                    console.log("Unknown Action message:");
+                    console.log("Unknown action message:");
                     console.log(msg);
+                    ws.send(JSON.stringify({
+                        action: "error",
+                        payload: {
+                            message: "Unknown action message."
+                        }
+                    }));
             }
         });
 
