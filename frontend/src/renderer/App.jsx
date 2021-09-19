@@ -5,6 +5,7 @@ import { Button, Navbar, Container, Row, Col, Modal, Form, Card, Spinner, ListGr
 import './App.global.css';
 import ayaya from "./ayaya.png"
 import { XTerm } from 'xterm-for-react'
+import { Icon } from '@fluentui/react/lib/Icon';
 
 class MainScreen extends React.Component {
 
@@ -31,7 +32,9 @@ class MainScreen extends React.Component {
       receiveAppName: "",
 
       deployModal: false,
-      deployStdout: ""
+      deployStdout: "",
+
+      selectedUsername: ""
     }
   }
   componentDidMount() {
@@ -64,7 +67,7 @@ class MainScreen extends React.Component {
             for (let p of msg.payload) {
                 console.log("user: " + p);
                 users.push(p);
-                usersDropdownJSX.push(<Dropdown.Item href="#">{p.displayname}</Dropdown.Item>);
+                usersDropdownJSX.push(<Dropdown.Item eventKey={p.username}>{p.displayname}</Dropdown.Item>);
             }
             this.setState({usersDropdownJSX, users});
             break;
@@ -95,7 +98,7 @@ class MainScreen extends React.Component {
     this.state.socket.send(JSON.stringify({
       action: "request-push-container",
       payload: {
-        targetUsername: "koitu",
+        targetUsername: this.state.selectedUsername,
         containerID: "1234",
         appName: "Minecraft Server"
       }
@@ -107,7 +110,9 @@ class MainScreen extends React.Component {
     window.electron.runScript((data) => { 
       console.log(this.state.deployStdout);
       this.setState({ deployStdout: this.state.deployStdout + data.toString() }); 
-      this.xtermRef.current.terminal.writeln(data.toString()); // TODOTODOTODO
+      // this.xtermRef.current.terminal.writeln(data.toString()); // TODOTODOTODO
+    }, () => {
+      this.setState({deployModal: false})
     });
   }
 
@@ -178,7 +183,7 @@ class MainScreen extends React.Component {
 
         {/* migrate modal */}
 
-        <Modal show={this.state.migrateModal} onHide={() => {this.state.migrateModal = false}} centered>
+        <Modal show={this.state.migrateModal} onHide={() => {this.setState({migrateModal: false})}} centered>
 
             <Modal.Header>
                 <Modal.Title>Clone to user</Modal.Title>
@@ -187,15 +192,18 @@ class MainScreen extends React.Component {
             <Modal.Body>
                 <Form>
                     <Form.Group className="mb-3">
-                    <Form.Label>Which user do you want to push the application to?</Form.Label>
+                    <Form.Label className="text-muted">Which user do you want to push the application to?</Form.Label>
 
-                    <DropdownButton id="dropdown-basic-button" title="Select User">
+                    <DropdownButton id="dropdown-basic-button" title={this.state.selectedUsername == "" ? "Select User" : this.state.selectedUsername} onSelect={(e) => {
+                        console.log(e);
+                        this.setState({selectedUsername: e});
+                    }}>
                       {this.state.usersDropdownJSX}
                     </DropdownButton>
                   </Form.Group>
 
                   <Modal.Footer>
-                    <Button variant="secondary">Cancel</Button>
+                    <Button variant="secondary" onClick={() => {this.setState({migrateModal: false})}}>Cancel</Button>
                     <Button variant="primary" onClick={() => {this.sendDeployToRemote()}}>Send Request</Button>
                   </Modal.Footer>
 
@@ -240,6 +248,7 @@ class MainScreen extends React.Component {
             <Modal.Body>
               <p className="text-muted">Deploying <b>{this.state.receiveAppName}</b> from <b>{this.state.receiveRequestingUser.displayname}</b> to the system...</p>
 
+              {/* <textarea rows="15" cols="50" value={this.state.deployStdout} style={{display: "flex", flexDirection: "column-reverse"}}>  */}
               <textarea rows="15" cols="50" value={this.state.deployStdout} style={{display: "flex", flexDirection: "column-reverse"}}> 
               </textarea>
 
@@ -253,16 +262,16 @@ class MainScreen extends React.Component {
         <Navbar bg="dark" variant="dark">
           <Container>
             <Navbar.Brand href="#home">
-              <Row>
               <img
                 alt=""
                 src={ayaya}
                 width="30"
                 height="30"
                 className="d-inline-block align-top"
+                style={{position: "absolute", top: "12px", left: "20px"}}
               />{' '}
-              <h4 style={{fontWeight: 400}}>FluentUI</h4>
-              </Row>
+              {'.'}
+              <h4 style={{position: "absolute", top: "16px", left: "60px", fontWeight: 700}}>Paracrates</h4>
             </Navbar.Brand>
           </Container>
         </Navbar>
@@ -271,7 +280,11 @@ class MainScreen extends React.Component {
 
           {/* sidebar */}
           <Col xs={3} style={{backgroundColor: "#03a9f4", fontWeight: 700, color: "white", padding: "25px"}}>
-            <p>Processes</p>
+            <p style={{marginLeft: "10px"}}><Icon iconName="ServerProcesses" style={{fontSize: "1.2em", marginRight: "7px", position: "relative", top: "3px"}}/> Processes</p>
+            <p style={{marginLeft: "10px"}}><Icon iconName="UserOptional" style={{fontSize: "1.2em", marginRight: "7px", position: "relative", top: "3px"}}/> Users</p>
+            <p style={{marginLeft: "10px"}}><Icon iconName="WebAppBuilderFragment" style={{fontSize: "1.2em", marginRight: "7px", position: "relative", top: "3px"}}/> Received Apps</p>
+            <p style={{marginLeft: "10px"}}><Icon iconName="Remote" style={{fontSize: "1.2em", marginRight: "7px", position: "relative", top: "3px"}}/> Remote Machines</p>
+            <p style={{marginLeft: "10px"}}><Icon iconName="Settings" style={{fontSize: "1.2em", marginRight: "7px", position: "relative", top: "3px"}}/> Settings</p>
           </Col>
 
           {/* content */}
@@ -279,14 +292,14 @@ class MainScreen extends React.Component {
             <h3>App Environments</h3>
             <pre>
               {pJSX}
-              <Button style={{position: "absolute", bottom: "25px"}}>Fling Environment to User</Button>
+              <Button style={{position: "absolute", bottom: "25px", fontFamily: "Nunito"}}>Push All Services to User</Button>
             </pre>
           </Col>
         </Row>
 
-        {this.state.connected ? <div style={{position: "absolute", bottom: "10px", left: "10px", color: "green"}}>
+        {this.state.connected ? <div style={{position: "absolute", bottom: "8px", left: "25px", color: "lightgreen", fontStyle: "Nunito", fontWeight: 700}}>
           <p>Connected to Gateway</p>
-        </div> : <div style={{position: "absolute", bottom: "10px", left: "10px", color: "red"}}>
+        </div> : <div style={{position: "absolute", bottom: "10px", left: "20px", color: "red"}}>
           <p>Not Connected to Gateway</p>
         </div> }
       </div>
