@@ -34,7 +34,8 @@ class MainScreen extends React.Component {
       deployModal: false,
       deployStdout: "",
 
-      selectedUsername: ""
+      selectedUsername: "",
+      deploySuccess: false
     }
   }
   componentDidMount() {
@@ -114,7 +115,7 @@ class MainScreen extends React.Component {
       this.setState({ deployStdout: this.state.deployStdout + data.toString() });
       // this.xtermRef.current.terminal.writeln(data.toString()); // TODOTODOTODO
     }, () => {
-      //this.setState({deployModal: false})
+      this.setState({deploySuccess: true});
     });
   }
 
@@ -253,7 +254,9 @@ class MainScreen extends React.Component {
               {/* <textarea rows="15" cols="50" value={this.state.deployStdout} style={{display: "flex", flexDirection: "column-reverse"}}>  */}
               <textarea rows="15" cols="50" value={this.state.deployStdout} style={{display: "flex", flexDirection: "column-reverse"}}>
               </textarea>
-              <Button onClick={() => this.setState({deployModal: false})}>Done</Button>
+              {this.state.deploySuccess ? <Button onClick={() => this.setState({deployModal: false})}>Done</Button> : <Spinner animation="border" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </Spinner> }
               {/* <XTerm ref={this.xtermRef}/> */}
 
             </Modal.Body>
