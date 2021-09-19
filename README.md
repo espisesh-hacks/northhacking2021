@@ -1,6 +1,3 @@
-# Paracrates (formerly northhacking2021)
-Hack the North 2021!
-
 ## 💡 Inspiration
 As a developer, you of course spend many hours developing code. However, we noticed that significant time is spent on the _interactions_ between developers in a team. That is, the time you spend committing work-in-progress code to branches and attempting to bring up services and configs on your fellow developers' workstations.
 
@@ -30,6 +27,8 @@ The application environments are inside Docker containers, allowing a consistent
 We created a quick transparent TCP failover proxy in Go, used in our demo, to redirect network traffic as soon as the Minecraft server transfer completes, without any disconnects noticed by Minecraft clients.
 
 The backend side of Paracrates was designed as a scaleable microservice, written in NodeJS. It is a websocket gateway that the clients connect to, and are able to send and receive messages (authentication requests, "Crate" push requests, etc). Why not REST? The real-time nature of Paracrates means Websockets are much more of an efficient choice. **CockroachDB** was our database of choice here for data storage, and its scaleable nature lends perfectly to our backend design. But we didn't just leverage its standard SQL capabilities, we were able to use it for much more...
+
+![CLI output of server startup](https://raw.githubusercontent.com/espisesh-hacks/northhacking2021/main/images/backend-cli.png)
 
 Because the backend is designed to be deployed as a swarm and cluster, we needed a mechanism to synchronize the state between instances of the backend (because clients maintain a single stateful connection to a given backend server).  This is where we made use of **CockroachDB Changefeeds**. Changefeeds allow clients to subscribe to a JSON stream of table changes. This means we can efficiently communicate state changes across the entire backend swarm/cluster through CockroachDB. Specifically, we insert a row into a "changes" table every time a client does an action through the backend. This means we both have logs of actions (for data analysis, very useful!), and so that every node in the cluster will be given an event to keep track of users across the entire network.
 
@@ -61,4 +60,3 @@ On the microservice side, we used CockroachDB for the first time and learned how
 
 ## What's next for Paracrates
 CRIU does currently have some limitations with regards to transferring graphical applications, especially when dealing with X11. Our next order of business would be to tackle that, with the goal of being able to live transfer programs like browsers, video editors and etc.
-
