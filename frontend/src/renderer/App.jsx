@@ -63,7 +63,7 @@ class MainScreen extends React.Component {
           }
           break;
         case "user-list":
-            let usersDropdownJSX = [], users = [];  
+            let usersDropdownJSX = [], users = [];
             for (let p of msg.payload) {
                 console.log("user: " + p);
                 users.push(p);
@@ -71,9 +71,11 @@ class MainScreen extends React.Component {
             }
             this.setState({usersDropdownJSX, users});
             break;
-          case "push-container":
-            this.setState({ receiveModal: true, receiveRequestingUser: msg.payload.requestUser, receiveAppName: msg.payload.appName});
-          break;
+        case "push-container":
+          this.setState({ receiveModal: true, receiveRequestingUser: msg.payload.requestUser, receiveAppName: msg.payload.appName});
+        break;
+        case "error":
+          alert("An error occurred: " + msg.payload.message);
        }
     };
   }
@@ -107,9 +109,9 @@ class MainScreen extends React.Component {
 
   deployApplication() {
     this.setState({deployModal: true, receiveModal: false});
-    window.electron.runScript((data) => { 
+    window.electron.runScript((data) => {
       console.log(this.state.deployStdout);
-      this.setState({ deployStdout: this.state.deployStdout + data.toString() }); 
+      this.setState({ deployStdout: this.state.deployStdout + data.toString() });
       // this.xtermRef.current.terminal.writeln(data.toString()); // TODOTODOTODO
     }, () => {
       this.setState({deployModal: false})
@@ -249,7 +251,7 @@ class MainScreen extends React.Component {
               <p className="text-muted">Deploying <b>{this.state.receiveAppName}</b> from <b>{this.state.receiveRequestingUser.displayname}</b> to the system...</p>
 
               {/* <textarea rows="15" cols="50" value={this.state.deployStdout} style={{display: "flex", flexDirection: "column-reverse"}}>  */}
-              <textarea rows="15" cols="50" value={this.state.deployStdout} style={{display: "flex", flexDirection: "column-reverse"}}> 
+              <textarea rows="15" cols="50" value={this.state.deployStdout} style={{display: "flex", flexDirection: "column-reverse"}}>
               </textarea>
 
               {/* <XTerm ref={this.xtermRef}/> */}

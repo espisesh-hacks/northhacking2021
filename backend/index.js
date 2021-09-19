@@ -27,7 +27,7 @@ async function main() {
         console.log("Failed to query CockroachDB.");
         process.exit(-1);
     }
-    
+
     wss.on('connection', function connection(ws) {
         let user;
         ws.on('message', async function incoming(message) {
