@@ -1,7 +1,7 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { MemoryRouter as Router, Switch, Route } from 'react-router-dom';
-import { Button, Navbar, Container, Row, Col, Modal, Form, Card } from 'react-bootstrap';
+import { Button, Navbar, Container, Row, Col, Modal, Form, Card, Spinner } from 'react-bootstrap';
 import './App.global.css';
 import ayaya from "./ayaya.png"
 
@@ -100,14 +100,17 @@ class MainScreen extends React.Component {
               </Form.Group>
             </Form>
           </Modal.Body>
-          <Modal.Footer>
+          {this.state.connected ? <Modal.Footer>
             <Button variant="secondary" onClick={() => {alert("Not Implemented")}}>
               Register
             </Button>
             <Button variant="primary" onClick={() => this.auth()}>
               Login
             </Button>
-          </Modal.Footer>
+          </Modal.Footer> : <center><Spinner animation="border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </Spinner><br /><br /></center> }
+
         </Modal>
         <Navbar bg="dark" variant="dark">
           <Container>

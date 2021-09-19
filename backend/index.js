@@ -47,7 +47,7 @@ async function main() {
         });
 
         //ws.send('something');
-    });
+    }); 
 }
 main().then(() => {
     console.log("Listening on port 8080");
