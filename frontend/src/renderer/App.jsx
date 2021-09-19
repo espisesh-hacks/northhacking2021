@@ -114,7 +114,7 @@ class MainScreen extends React.Component {
       this.setState({ deployStdout: this.state.deployStdout + data.toString() });
       // this.xtermRef.current.terminal.writeln(data.toString()); // TODOTODOTODO
     }, () => {
-      this.setState({deployModal: false})
+      //this.setState({deployModal: false})
     });
   }
 
@@ -241,7 +241,7 @@ class MainScreen extends React.Component {
 
         {/* deploy modal */}
 
-        <Modal show={this.state.deployModal} onHide={() => {this.state.deployModal = false}} centered>
+        <Modal show={this.state.deployModal} centered>
 
             <Modal.Header>
                 <Modal.Title>Application deployment</Modal.Title>
@@ -253,7 +253,7 @@ class MainScreen extends React.Component {
               {/* <textarea rows="15" cols="50" value={this.state.deployStdout} style={{display: "flex", flexDirection: "column-reverse"}}>  */}
               <textarea rows="15" cols="50" value={this.state.deployStdout} style={{display: "flex", flexDirection: "column-reverse"}}>
               </textarea>
-
+              <Button onClick={() => this.setState({deployModal: false})}>Done</Button>
               {/* <XTerm ref={this.xtermRef}/> */}
 
             </Modal.Body>
