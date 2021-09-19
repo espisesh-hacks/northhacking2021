@@ -9,8 +9,43 @@
               integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We"
               crossorigin="anonymous"
       />
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@200;300;400;700&display=swap" rel="stylesheet"> 
+    
+    <style>
+     .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        min-height: 100vh !important;
+        z-index: 100;
+        padding: 48px 0 0;
+        box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    }
+    #sidebar-wrapper{
+        min-height: 100vh !important;
+        width: 100vw;
+        margin-left: -1rem;
+        -webkit-transition: margin .25s ease-out;
+        -moz-transition: margin .25s ease-out;
+        -o-transition: margin .25s ease-out;
+        transition: margin .25s ease-out;
+    }
+    #sidebar-wrapper .sidebar-heading {
+        padding: 0.875rem 1.25rem;
+        font-size: 1.2rem;
+    }
+    
+    #page-content-wrapper {
+        min-width: 0;
+        width: 100%;
+    }
+    </style>
+    
   </head>
-  <body>
+  <body style="font-family: Nunito, sans-serif;">
     <div id="root"></div>
   </body>
   <script>

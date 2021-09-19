@@ -246,6 +246,8 @@
     "yarn-deduplicate": "^3.1.0"
   },
   "dependencies": {
+    "@fluentui/react": "^8.34.2",
+    "@fluentui/react-icons": "^1.1.141",
     "bootstrap": "5.1.0",
     "electron-debug": "^3.2.0",
     "electron-log": "^4.3.5",

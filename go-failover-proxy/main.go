@@ -10,8 +10,8 @@ import (
 
 var (
     localAddr = ":25566"
-    remoteAddr = "192.168.1.123:25565"
-    remoteBackupAddr = "192.168.1.182:25565"
+    remoteAddr = "172.18.0.22:25565"
+    remoteBackupAddr = "192.168.1.182:9999"
 )
 
 type Proxy struct {
@@ -123,9 +123,6 @@ func (p *Proxy) pipe(src, dst io.ReadWriter, done chan bool) {
 			p.receivedBytes += uint64(n)
 		}
 	}
-    
-    
-    
     
 	//directional copy (64k buffer)
 // 	buff := make([]byte, 0xffff)
