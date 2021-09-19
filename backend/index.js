@@ -1,9 +1,9 @@
-console.log("Starting WS Gateway server...");
+console.log("Starting Paracrates WS Gateway server...");
 const { WebSocketServer } = require('ws');
 const { Pool, Client } = require('pg');
 const crypto = require('crypto');
 
-const {updateLatestAction} = require("./sync_servers");
+const {updateLatestAction, bindChangeFeeds} = require("./sync_servers");
 
 const wss = new WebSocketServer({ port: 8080 });
 
@@ -17,9 +17,17 @@ async function main() {
         password: '',
         port: 26257
     });
-    let res = await pool.query('SELECT NOW()');
-    console.log(res.rows);
-
+    console.log("Testing CockroachDB Connection: ");
+    try {
+        const res = await pool.query('SELECT NOW()');
+        console.log(res.rows);
+        console.log("Success!");
+    } catch(e) {
+        console.log(e);
+        console.log("Failed to query CockroachDB.");
+        process.exit(-1);
+    }
+    
     wss.on('connection', function connection(ws) {
         let user;
         ws.on('message', async function incoming(message) {
@@ -126,8 +134,10 @@ async function main() {
         //ws.send('something');
     });
 }
-main().then(() => {
+main().then(async () => {
     console.log("Listening on port 8080");
+    console.log("Subscribing to CockroachDB Changefeeds...");
+    await bindChangeFeeds();
 });
 
 

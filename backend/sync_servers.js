@@ -12,4 +12,31 @@ async function updateLatestAction(action, user, pool) {
         console.log("Notified state change through CockroachDB changefeed!");
     }
 }
-module.exports = {updateLatestAction};
+
+async function bindChangeFeeds() {
+    // docker run --rm -it christoofar/cockroachdb-arm64 sql --url="postgresql://root@192.168.1.128:26257?sslmode=disable" --format=csv --execute="EXPERIMENTAL CHANGEFEED FOR state_changes;"
+    // todo remove pi specific configuration
+    const { spawn } = require('child_process');
+    const cf = spawn('docker', ['run', '--rm', 'christoofar/cockroachdb-arm64',
+        'sql',
+        '--url=postgresql://root@192.168.1.128:26257?sslmode=disable',
+        '--format=csv',
+        '--execute=EXPERIMENTAL CHANGEFEED FOR state_changes;'
+    ]);
+
+    cf.stdout.on('data', (data) => {
+        console.log(`changefeed stdout: ${data}`);
+    });
+
+    cf.stderr.on('data', (data) => {
+        console.error(`changefeed stderr: ${data}`);
+    });
+
+    cf.on('close', (code) => {
+        console.log(`changefeed child process exited with code ${code}`);
+    });
+
+    console.log("Done!");
+
+}
+module.exports = {updateLatestAction, bindChangeFeeds};
