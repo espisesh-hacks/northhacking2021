@@ -4,10 +4,13 @@ import { MemoryRouter as Router, Switch, Route } from 'react-router-dom';
 import { Button, Navbar, Container, Row, Col, Modal, Form, Card, Spinner, ListGroup, Nav, Dropdown, DropdownButton } from 'react-bootstrap';
 import './App.global.css';
 import ayaya from "./ayaya.png"
+import { XTerm } from 'xterm-for-react'
 
 class MainScreen extends React.Component {
+
   constructor(props) {
     super(props);
+    this.xtermRef = React.createRef()
     this.state = {
       connected: false,
       socket: null,
@@ -104,10 +107,12 @@ class MainScreen extends React.Component {
     window.electron.runScript((data) => { 
       console.log(data.toString());
       this.setState({ deployStdout: this.state.deployStdout + data.toString() }); 
+      this.xtermRef.current.terminal.writeln(data.toString()); // TODOTODOTODO
     });
   }
 
   render() {
+
     if (this.state.processes === "") {
       return(
         <div>Loading...</div>
@@ -235,7 +240,7 @@ class MainScreen extends React.Component {
             <Modal.Body>
               <p className="text-muted">Deploying <b>{this.state.receiveAppName}</b> from <b>{this.state.receiveRequestingUser.displayname}</b> to the system...</p>
 
-              
+              <XTerm ref={this.xtermRef}/>
 
             </Modal.Body>
 
