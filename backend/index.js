@@ -89,6 +89,18 @@ async function main() {
                     //send back container-push-status
 
                 } break;
+                case "push-container-status": {
+                    if(user === undefined) { ws.send(JSON.stringify({action: "error", payload: {message: "Not Authenticated"}})); return; }
+                    // payload requestUsername, status ("accept/deny")
+                    // Target sends acceptance message to request user
+                    clients[msg.payload.requestUsername].send(JSON.stringify({
+                        action: "push-container-status",
+                        payload: {
+                            targetUsername: user.username,
+                            status: msg.payload.status
+                        }
+                    }));
+                } break;
                 default:
                     console.log("Unknown action message:");
                     console.log(msg);
