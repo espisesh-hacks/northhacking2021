@@ -53,7 +53,7 @@ async function main() {
 
                 // todo make sure hello was sent first
                 case "get-users": {
-                    if(user === undefined) { ws.send(JSON.stringify({action: "error", payload: {message: "Not Authenticated"}})); return; }
+                    //if(user === undefined) { ws.send(JSON.stringify({action: "error", payload: {message: "Not Authenticated"}})); return; }
                     const res = await pool.query("SELECT username, displayname FROM users");
                     console.log(res);
                     ws.send(JSON.stringify({
@@ -63,7 +63,7 @@ async function main() {
                 } break;
                 case "request-push-container": {
                     if(user === undefined) { ws.send(JSON.stringify({action: "error", payload: {message: "Not Authenticated"}})); return; }
-                    // payload targetUsername, containerID
+                    // payload targetUsername, containerID, appName
                     // check if client is not null;
                     if(clients[msg.payload.targetUsername] === undefined) {
                         console.log("Attempted to push to a user who is not online");
@@ -81,7 +81,9 @@ async function main() {
                                 requestUser: {
                                     username: user.username,
                                     displayname: user.displayname
-                                }
+                                },
+                                containerID: msg.payload.containerID,
+                                appName: msg.payload.appName
                             }
                         }));
                     }
@@ -111,6 +113,10 @@ async function main() {
                         }
                     }));
             }
+        });
+        ws.on('close', function close() {
+            console.log('Client Disconnected');
+
         });
 
         //ws.send('something');
